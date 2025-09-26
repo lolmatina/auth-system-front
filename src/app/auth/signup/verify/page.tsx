@@ -3,6 +3,7 @@ import { FormEvent, useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from 'next/navigation';
+import { VerificationResponse, ApiError } from '@/types/auth';
 
 export default function VerifyPage() {
   const { email, setStep } = useAuthStore();
@@ -29,11 +30,12 @@ export default function VerifyPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/api/v1/auth/email/verify', { email: localEmail, code });
+      await api.post<VerificationResponse>('/api/v1/auth/email/verify', { email: localEmail, code });
       setStep('documents');
       router.push('/auth/signup/documents');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Invalid or expired code');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError?.response?.data?.message || 'Invalid or expired code');
       setLoading(false);
     }
   };
@@ -42,10 +44,11 @@ export default function VerifyPage() {
     setError(null);
     setInfo(null);
     try {
-      await api.post('/api/v1/auth/email/send', { email: localEmail });
+      await api.post<VerificationResponse>('/api/v1/auth/email/send', { email: localEmail });
       setInfo('Code resent. Please check your inbox.');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to resend code');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError?.response?.data?.message || 'Failed to resend code');
     }
   };
 
@@ -74,7 +77,7 @@ export default function VerifyPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Электронная почта</label>
               <div className="relative">
                 <input
-                  className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
+                  className="w-full px-4 py-3 pl-12 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white"
                   placeholder="Введите вашу электронную почту"
                   type="email"
                   value={localEmail}
@@ -92,7 +95,7 @@ export default function VerifyPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Код подтверждения</label>
               <div className="relative">
                 <input
-                  className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-center text-2xl font-mono tracking-widest"
+                  className="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 focus:bg-white text-center text-2xl font-mono tracking-widest text-gray-900"
                   placeholder="000000"
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}

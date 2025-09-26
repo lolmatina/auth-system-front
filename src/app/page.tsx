@@ -2,9 +2,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
+import { User } from '@/types/auth';
 
 export default function Home() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -13,7 +14,7 @@ export default function Home() {
     const fetchUserData = async () => {
       try {
         // Get current user data using the token cookie (automatically sent by axios withCredentials)
-        const response = await api.get('/api/v1/user/me');
+        const response = await api.get<{ user: User }>('/api/v1/user/me');
         setUser(response.data.user);
       } catch (error) {
         console.error('Failed to fetch user data:', error);
@@ -140,7 +141,7 @@ export default function Home() {
         </div>
 
         {/* User Profile Card */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-12">
+        {/* <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-12">
           <div className="flex items-start justify-between">
             <div className="flex items-center">
               <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
@@ -170,10 +171,10 @@ export default function Home() {
               Редактировать профиль
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 hover:shadow-xl transition-shadow duration-200">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -212,7 +213,7 @@ export default function Home() {
               Получить поддержку →
             </button>
           </div>
-        </div>
+        </div> */}
       </main>
     </div>
   );

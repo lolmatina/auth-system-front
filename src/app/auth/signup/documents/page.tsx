@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from 'next/navigation';
+import { DocumentSubmissionResponse, ApiError } from '@/types/auth';
 
 export default function DocumentsPage() {
   const { email, setStep, setEmail } = useAuthStore();
@@ -42,7 +43,7 @@ export default function DocumentsPage() {
       form.append('files', front);
       form.append('files', back);
       form.append('files', selfie);
-      await api.post('/api/v1/auth/documents', form, {
+      await api.post<DocumentSubmissionResponse>('/api/v1/auth/documents', form, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setInfo('Documents submitted. You will be able to login after approval.');
@@ -51,8 +52,9 @@ export default function DocumentsPage() {
       setTimeout(() => {
         router.push('/auth/signin');
       }, 2000);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to submit documents');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError?.response?.data?.message || 'Failed to submit documents');
       setLoading(false);
     }
   };

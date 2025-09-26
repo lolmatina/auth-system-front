@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react';
 import { api } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
+import { AuthResponse, ApiError } from '@/types/auth';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -17,7 +18,7 @@ export default function LoginPage() {
     setError(null);
     setLoading(true);
     try {
-      const response = await api.post('/api/v1/auth', { email, password });
+      const response = await api.post<AuthResponse>('/api/v1/auth', { email, password });
       const { user, token } = response.data;
 
       console.log(response.data);
@@ -60,8 +61,9 @@ export default function LoginPage() {
       
       // Fully verified user - redirect to home
       router.push('/');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Login failed');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError?.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }

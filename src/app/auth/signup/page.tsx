@@ -3,6 +3,7 @@ import { FormEvent, useState } from 'react';
 import { api } from '@/lib/api';
 import { useAuthStore } from '@/store/auth';
 import { useRouter } from 'next/navigation';
+import { SignupResponse, ApiError } from '@/types/auth';
 
 export default function RegisterPage() {
   const { setEmail, setStep } = useAuthStore();
@@ -19,12 +20,13 @@ export default function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
-      await api.post('/api/v1/auth/signup', { name, lastname, email, password });
+      await api.post<SignupResponse>('/api/v1/auth/signup', { name, lastname, email, password });
       setEmail(email);
       setStep('verify');
       router.push('/auth/signup/verify');
-    } catch (err: any) {
-      setError(err?.response?.data?.message || 'Failed to register');
+    } catch (err) {
+      const apiError = err as ApiError;
+      setError(apiError?.response?.data?.message || 'Failed to register');
       setLoading(false);
     }
   };
